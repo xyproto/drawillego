@@ -131,7 +131,7 @@ func maxy(m CharMap) int {
 
 func (c *Canvas) Unset(x, y int) {
 	ppos := Pos{x / 2, y / 4}
-	c.chars[ppos] &= ^pixel_map[y%4][x%4]
+	c.chars[ppos] &= ^pixel_map[y%4][x%2]
 	if c.chars[ppos] == 0 {
 		delete(c.chars, ppos)
 	}
