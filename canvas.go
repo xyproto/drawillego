@@ -4,7 +4,8 @@ import (
 	"math"
 )
 
-type CharMap map[int]map[int]*Number
+type CharMap map[int]map[int]rune
+type FloatPair [2]float64
 
 type Canvas struct {
 	line_ending string
@@ -19,9 +20,9 @@ func (c *Canvas) Clear() {
 	c.chars = make(CharMap)
 }
 
-func (c *Canvas) _get_pos(xc, yc *Number) (*Number, *Number, int, int) {
-	x := normalize(xc)
-	y := normalize(yc)
+func (c *Canvas) _get_pos(xi, yi int) (*Number, *Number, int, int) {
+	x := NewInt(xi)
+	y := NewInt(yi)
 	cols := x.Int() / 2
 	rows := y.Int() / 4
 	return x, y, cols, rows
@@ -35,9 +36,11 @@ func intAndUnaryBitwiseComplement(a, b *Number) *Number {
 	return NewInt(a.Int() & ^b.Int())
 }
 
-func (c *Canvas) Set(x, y *Number) {
-	x, y, px, py := c._get_pos(x, y)
-	c.chars[py][px] = intOr(c.chars[py][px], pixel_map[y.Int()%4][x.Int()%2])
+func (c *Canvas) Set(xi, yi int) {
+	_, _, px, py := c._get_pos(xi, yi)
+	val := c.chars[py][px]
+	newval := intOr(NewInt(int(val)), pixel_map[yi%4][xi%2])
+	c.chars[py][px] = rune(newval.Int())
 }
 
 func has(m CharMap, key int) bool {
@@ -49,11 +52,12 @@ func has(m CharMap, key int) bool {
 	return false
 }
 
-func (c *Canvas) Unset(x, y *Number) {
-	x, y, px, py := c._get_pos(x, y)
+func (c *Canvas) Unset(xi, yi int) {
+	x, y, px, py := c._get_pos(xi, yi)
 	val := c.chars[py][px]
 	if val.floatType == false {
-		c.chars[py][px] = intAndUnaryBitwiseComplement(val, pixel_map[y.Int()%4][x.Int()%2])
+		newval := intAndUnaryBitwiseComplement(&val, pixel_map[y.Int()%4][x.Int()%2])
+		c.chars[py][px] = *newval
 	}
 	val = c.chars[py][px]
 	if val.floatType || (val.Int() == 0) {
@@ -64,21 +68,26 @@ func (c *Canvas) Unset(x, y *Number) {
 	}
 }
 
-func (c *Canvas) Toggle(x, y *Number) {
-	x, y, px, py := c._get_pos(x, y)
+func (c *Canvas) Toggle(x, y int) {
+	_, _, px, py := c._get_pos(x, y)
 	val := c.chars[py][px]
-	if val.floatType || (intOr(val, pixel_map[y.Int()%4][x.Int()%2]).Int() != 0) {
+	if val.floatType || (intOr(&val, pixel_map[y%4][x%2]).Int() != 0) {
 		c.Unset(x, y)
 	} else {
 		c.Set(x, y)
 	}
 }
 
-func (c *Canvas) SetText(x, y *Number, text string) {
-	xn := normalize(NewFloat(x.Float() / 2.0))
-	yn := normalize(NewFloat(y.Float() / 4.0))
+func round(a float64) int {
+	return int(a + 0.5)
+}
+
+func (c *Canvas) SetText(x, y int, text string) {
+	xn := round(float64(x) / 2.0)
+	yn := round(float64(y) / 4.0)
 	for i, b := range text {
-		c.chars[yn.Int()][xn.Int()+i] = NewInt(int(b))
+		newval := NewInt(int(b))
+		c.chars[yn][xn+i] = *newval
 	}
 }
 
@@ -90,11 +99,9 @@ func (c *Canvas) Get(x, y *Number) bool {
 	if !ok {
 		return false
 	}
-
 	if char.floatType {
 		return true
 	}
-
 	return (char.Int() & dot_index.Int()) != 0
 }
 
@@ -129,7 +136,6 @@ func lessEqual(a, b *Number) bool {
 	return a.Float() <= b.Float()
 }
 
-type FloatPair [2]float64
 
 // Returns the float coordinates in the channel. Equivivalent to yield.
 func line(x1o, y1o, x2o, y2o *Number) chan FloatPair {
