@@ -96,11 +96,10 @@ func TestMaxMinLimits(t *testing.T) {
 	if retval != "" {
 		t.Errorf("Frame with min_x=2 should be an empty string, is %s!\n", retval)
 	}
-	// TODO: Figure out why this test fails
-	//retval = c.FrameCoord(-1, -1, 0, -1)
-	//if retval != "" {
-	//	t.Errorf("Frame with max_x=0 should be an empty string, is %s!\n", retval)
-	//}
+	retval = c.FrameCoord(-1, -1, 0, -1)
+	if retval != "" {
+		t.Errorf("Frame with max_x=0 should be an empty string, is %s!\n", retval)
+	}
 }
 
 func TestGet(t *testing.T) {
