@@ -2,9 +2,11 @@ package drawille
 
 import (
 	"math"
+	"strings"
 )
 
-type CharMap map[int]map[int]rune
+type Pos [2]int
+type CharMap map[Pos]int // from position to rune, as int
 type FloatPair [2]float64
 
 type Canvas struct {
@@ -20,30 +22,12 @@ func (c *Canvas) Clear() {
 	c.chars = make(CharMap)
 }
 
-func (c *Canvas) _get_pos(xi, yi int) (*Number, *Number, int, int) {
-	x := NewInt(xi)
-	y := NewInt(yi)
-	cols := x.Int() / 2
-	rows := y.Int() / 4
-	return x, y, cols, rows
+func (c *Canvas) Set(x, y int) {
+	ppos := Pos{x / 2, y / 4}
+	c.chars[ppos] |= pixel_map[y%4][x%4]
 }
 
-func intOr(a, b *Number) *Number {
-	return NewInt(a.Int() | b.Int())
-}
-
-func intAndUnaryBitwiseComplement(a, b *Number) *Number {
-	return NewInt(a.Int() & ^b.Int())
-}
-
-func (c *Canvas) Set(xi, yi int) {
-	_, _, px, py := c._get_pos(xi, yi)
-	val := c.chars[py][px]
-	newval := intOr(NewInt(int(val)), pixel_map[yi%4][xi%2])
-	c.chars[py][px] = rune(newval.Int())
-}
-
-func has(m CharMap, key int) bool {
+func has(m CharMap, key Pos) bool {
 	for k, _ := range m {
 		if k == key {
 			return true
@@ -52,26 +36,17 @@ func has(m CharMap, key int) bool {
 	return false
 }
 
-func (c *Canvas) Unset(xi, yi int) {
-	x, y, px, py := c._get_pos(xi, yi)
-	val := c.chars[py][px]
-	if val.floatType == false {
-		newval := intAndUnaryBitwiseComplement(&val, pixel_map[y.Int()%4][x.Int()%2])
-		c.chars[py][px] = *newval
-	}
-	val = c.chars[py][px]
-	if val.floatType || (val.Int() == 0) {
-		delete(c.chars[py], px)
-	}
-	if has(c.chars, py) {
-		delete(c.chars, py)
+func (c *Canvas) Unset(x, y int) {
+	ppos := Pos{x / 2, y / 4}
+	c.chars[ppos] &= ^pixel_map[y%4][x%4]
+	if c.chars[ppos] == 0 {
+		delete(c.chars, ppos)
 	}
 }
 
 func (c *Canvas) Toggle(x, y int) {
-	_, _, px, py := c._get_pos(x, y)
-	val := c.chars[py][px]
-	if val.floatType || (intOr(&val, pixel_map[y%4][x%2]).Int() != 0) {
+	ppos := Pos{x / 2, y / 4}
+	if ((c.chars[ppos] & pixel_map[y%4][x%2]) != 0) {
 		c.Unset(x, y)
 	} else {
 		c.Set(x, y)
@@ -86,30 +61,81 @@ func (c *Canvas) SetText(x, y int, text string) {
 	xn := round(float64(x) / 2.0)
 	yn := round(float64(y) / 4.0)
 	for i, b := range text {
-		newval := NewInt(int(b))
-		c.chars[yn][xn+i] = *newval
+		// TODO: Might have to find the existing position instead of creating a new one
+		ppos := Pos{yn, xn+i}
+		c.chars[ppos] = int(b)
 	}
 }
 
-func (c *Canvas) Get(x, y *Number) bool {
-	dot_index := pixel_map[y.Int()%4][x.Int()%2]
-	xn := normalize(NewFloat(x.Float() / 2.0))
-	yn := normalize(NewFloat(y.Float() / 4.0))
-	char, ok := c.chars[yn.Int()][xn.Int()]
+func (c *Canvas) Get(x, y int) bool {
+	dot_index := pixel_map[y%4][x%2]
+	xn := round(float64(x) / 2.0)
+	yn := round(float64(y) / 4.0)
+	char, ok := c.chars[Pos{yn, xn}]
 	if !ok {
 		return false
 	}
-	if char.floatType {
-		return true
+	return (char & dot_index) != 0
+}
+
+// characters
+// min_* can be -1 for "everything"
+func (c *Canvas) Rows(min_x, min_y, max_x, max_y int) (ret []int) {
+	ret = []int{}
+
+	if len(c.chars) == 0 {
+		return
 	}
-	return (char.Int() & dot_index.Int()) != 0
+
+	minrow := min_y / 4
+	if min_y == -1 {
+		minrow = miny(c.chars)
+	}
+
+	maxrow := (max_y - 1) / 4
+	if max_y == -1 {
+		maxrow = maxy(c.chars)
+	}
+
+	mincol := min_x / 2
+	if min_x == -1 {
+		mincol = minx(c.chars)
+	}
+
+	maxcol := (max_x -1) / 2
+	if max_x == -1 {
+		maxcol = maxx(c.chars)
+	}
+
+	for rownum := minrow; rownum < (maxrow + 1); rownum++ {
+		if !hasy(c.chars, rownum) {
+			ret = append(ret, 0)
+			continue
+		}
+		maxcol = (max_x - 1) / 2
+		if max_x == -1 {
+			maxcol = maxx(c.chars)
+		}
+		row := []int{}
+
+		for x := mincol; x < (maxcol + 1); x++ {
+			char, found := c.chars[Pos{x, rownum}]
+
+			if !found {
+				row = append(row, 32)
+			} else {
+				row = append(row, braille_char_offset + char)
+			}
+		}
+
+		ret = append(ret, strings.Join("", row))
+	}
+
+	return
 }
 
-func (c *Canvas) Rows(min_x, min_y, max_x, max_y *Number) []*Number {
-	return []*Number{}
-}
-
-func (c *Canvas) Frame(min_x, min_y, max_x, max_y *Number) string {
+func (c *Canvas) Frame(min_x, min_y, max_x, max_y int) string {
+	ret = strings.Join(c.line_ending, c.Rows)
 	return ""
 }
 

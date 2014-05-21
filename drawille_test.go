@@ -11,54 +11,72 @@ var (
 func TestSet(t *testing.T) {
 	c = NewCanvas()
 	c.Set(0, 0)
-	found := false
-	for _, x := range c.chars[0] {
-		if x.Int() == 0 {
-			found = true
-			break
-		}
-	}
+	_, found := c.chars[Pos{0, 0}]
 	if !found {
-		t.Errorf("No 0 in canvas chars ys!\n");
+		t.Errorf("No 0,0 in canvas!\n");
+	}
+	val, found := c.chars[Pos{1, 1}]
+	if found {
+		t.Errorf("Found %v when there should be none!\n", val)
 	}
 }
 
+func TestUnsetEmpty(t *testing.T) {
+	c = NewCanvas()
+	c.Set(1, 1)
+	c.Unset(1, 1)
+	_, found := c.chars[Pos{1, 1}]
+	if found {
+		t.Errorf("Found pixel where there should be none!\n")
+	}
+}
+
+func TestUnsetNonempty(t *testing.T) {
+	c = NewCanvas()
+	c.Set(0, 0)
+	c.Set(0, 1)
+	c.Unset(0, 1)
+	_, found := c.chars[Pos{0, 0}]
+	if !found {
+		t.Errorf("No 0,0 in canvas!\n");
+	}
+}
+
+func TestClear(t *testing.T) {
+	c = NewCanvas()
+	c.Set(1, 1)
+	if len(c.chars) != 1 {
+		t.Errorf("Length should be 1!\n")
+	}
+	c.Clear()
+	if len(c.chars) != 0 {
+		t.Errorf("Length should be 0!\n")
+	}
+}
+
+func TestToggle(t *testing.T) {
+	c = NewCanvas()
+	c.Toggle(0, 0)
+	_, found := c.chars[Pos{0, 0}]
+	if !found {
+		t.Errorf("No 0,0 in canvas!\n");
+	}
+	c.Toggle(0, 0)
+	if len(c.chars) != 0 {
+		t.Errorf("Length should be 0!\n")
+	}
+}
+
+func TestSetText(t *testing.T) {
+	c = NewCanvas()
+	c.SetText(0, 0, "asdf")
+	if c.Frame() != "asdf" {
+		t.Errorf("Frame should be asdf!\n")
+	}
+}
+
+
 /*
-    def test_set(self):
-        c = Canvas()
-        c.set(0, 0)
-        self.assertTrue(0 in c.chars and 0 in c.chars[0])
-
-
-    def test_unset_empty(self):
-        c = Canvas()
-        c.set(1, 1)
-        c.unset(1, 1)
-        self.assertEqual(len(c.chars), 0)
-
-
-    def test_unset_nonempty(self):
-        c = Canvas()
-        c.set(0, 0)
-        c.set(0, 1)
-        c.unset(0, 1)
-        self.assertEqual(c.chars[0][0], 1)
-
-
-    def test_clear(self):
-        c = Canvas()
-        c.set(1, 1)
-        c.clear()
-        self.assertEqual(c.chars, dict())
-
-
-    def test_toggle(self):
-        c = Canvas()
-        c.toggle(0, 0)
-        self.assertEqual(c.chars, {0: {0: 1}})
-        c.toggle(0, 0)
-        self.assertEqual(c.chars, dict())
-
 
     def test_set_text(self):
         c = Canvas()

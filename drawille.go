@@ -20,13 +20,14 @@ import (
  */
 
 // For a direct translation from untyped Python to typed Go
-type Numbers []*Number
+type Pairs []Pos
 
 var (
-	pixel_map = []Numbers{Numbers{NewInt(0x01), NewInt(0x08)},
-		Numbers{NewInt(0x02), NewInt(0x10)},
-		Numbers{NewInt(0x04), NewInt(0x20)},
-		Numbers{NewInt(0x40), NewInt(0x80)}}
+	pixel_map = Pairs{
+	    Pos{0x01, 0x08},
+		Pos{0x02, 0x10},
+		Pos{0x04, 0x20},
+		Pos{0x40, 0x80}}
 )
 
 const (
