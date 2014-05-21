@@ -1,26 +1,26 @@
 package drawille
 
 // Can represent an int or a float64, default is a float64
-type Number struct {
+type FloatOrInt struct {
 	floatType bool
 	fval      float64
 	ival      int
 }
 
-func NewFloat(val float64) *Number {
-	return &Number{true, val, 0}
+func NewFloat(val float64) *FloatOrInt {
+	return &FloatOrInt{true, val, 0}
 }
 
-func NewInt(val int) *Number {
-	return &Number{false, 0.0, val}
+func NewInt(val int) *FloatOrInt {
+	return &FloatOrInt{false, 0.0, val}
 }
 
-func (fi *Number) New() *Number {
-	return &Number{fi.floatType, fi.fval, fi.ival}
+func (fi *FloatOrInt) New() *FloatOrInt {
+	return &FloatOrInt{fi.floatType, fi.fval, fi.ival}
 }
 
 // Switch a coordinate type from float64 to int, or keep it as an int
-func (fi *Number) Normalize() {
+func (fi *FloatOrInt) Normalize() {
 	if fi.floatType {
 		fi.floatType = false
 		// Round float64 to int
@@ -28,13 +28,13 @@ func (fi *Number) Normalize() {
 	}
 }
 
-func (fi *Number) Normalized() *Number {
+func (fi *FloatOrInt) Normalized() *FloatOrInt {
 	n := fi.New()
 	n.Normalize()
 	return n
 }
 
-func (fi *Number) Int() int {
+func (fi *FloatOrInt) Int() int {
 	if fi.floatType {
 		// Round float64 to int
 		return int(fi.fval + 0.5)
@@ -42,13 +42,13 @@ func (fi *Number) Int() int {
 	return fi.ival
 }
 
-func (fi *Number) Float() float64 {
+func (fi *FloatOrInt) Float() float64 {
 	if fi.floatType {
 		return fi.fval
 	}
 	return float64(fi.ival)
 }
 
-func (fi *Number) Bool() bool {
+func (fi *FloatOrInt) Bool() bool {
 	return fi.Int() != 0
 }

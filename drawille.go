@@ -19,27 +19,25 @@ import (
  *   `````
  */
 
+type Pos32 [2]int32
+
 // For a direct translation from untyped Python to typed Go
-type Pairs []Pos
+type Pairs []Pos32
 
 var (
 	pixel_map = Pairs{
-	    Pos{0x01, 0x08},
-		Pos{0x02, 0x10},
-		Pos{0x04, 0x20},
-		Pos{0x40, 0x80}}
+		Pos32{0x01, 0x08},
+		Pos32{0x02, 0x10},
+		Pos32{0x04, 0x20},
+		Pos32{0x40, 0x80}}
 )
 
 const (
 	// braille unicode characters starts at 0x2800
-	braille_char_offset = 0x2800
+	braille_char_offset rune = 0x2800
 )
 
 // Returns terminal width, height
 func getTerminalSize() (int, int) {
 	return ScreenWidth(), ScreenHeight()
-}
-
-func normalize(fi *Number) *Number {
-	return fi.Normalized()
 }
