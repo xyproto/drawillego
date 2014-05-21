@@ -30,7 +30,7 @@ func lessEqual(a, b *FloatOrInt) bool {
 }
 
 func line(x1, y1, x2, y2 int) chan FloatPair {
-    return _line(NewInt(x1), NewInt(y1), NewInt(x2), NewInt(y2))
+	return _line(NewInt(x1), NewInt(y1), NewInt(x2), NewInt(y2))
 }
 
 // Returns the float coordinates in the channel. Equivivalent to yield.

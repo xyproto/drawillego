@@ -131,36 +131,36 @@ func TestLine(t *testing.T) {
 		break
 	}
 
-    fps := make([]FloatPair, 0, 0)
-    for fp := range line(0, 0, 1, 0) {
-        fps = append(fps, fp)
-    }
+	fps := make([]FloatPair, 0, 0)
+	for fp := range line(0, 0, 1, 0) {
+		fps = append(fps, fp)
+	}
 	if fps[0] != (FloatPair{0.0, 0.0}) {
 		t.Errorf("Expected the first coordinate on the second line to be 0.0, 0.0.\n")
 	}
-    if fps[1] != (FloatPair{1.0, 0.0}) {
+	if fps[1] != (FloatPair{1.0, 0.0}) {
 		t.Errorf("Expected the second coordinate on the second line to be 1.0, 0.0.\n")
-    }
+	}
 
-    fps = make([]FloatPair, 0, 0)
-    for fp := range line(0, 0, 0, 1) {
-        fps = append(fps, fp)
-    }
+	fps = make([]FloatPair, 0, 0)
+	for fp := range line(0, 0, 0, 1) {
+		fps = append(fps, fp)
+	}
 	if fps[0] != (FloatPair{0.0, 0.0}) {
 		t.Errorf("Expected the first coordinate on the third line to be 0.0, 0.0.\n")
 	}
-    if fps[1] != (FloatPair{0.0, 1.0}) {
+	if fps[1] != (FloatPair{0.0, 1.0}) {
 		t.Errorf("Expected the second coordinate on the third line to be 0.0, 1.0.\n")
-    }
+	}
 
-    fps = make([]FloatPair, 0, 0)
-    for fp := range line(0, 0, 1, 1) {
-        fps = append(fps, fp)
-    }
+	fps = make([]FloatPair, 0, 0)
+	for fp := range line(0, 0, 1, 1) {
+		fps = append(fps, fp)
+	}
 	if fps[0] != (FloatPair{0.0, 0.0}) {
 		t.Errorf("Expected the first coordinate on the third line to be 0.0, 0.0.\n")
 	}
-    if fps[1] != (FloatPair{1.0, 1.0}) {
+	if fps[1] != (FloatPair{1.0, 1.0}) {
 		t.Errorf("Expected the second coordinate on the third line to be 1.0, 1.0.\n")
-    }
+	}
 }
