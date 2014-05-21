@@ -28,7 +28,7 @@ func (c *Canvas) Set(x, y int) {
 		return
 	}
 	// Set the correct dot pattern
-	c.chars[ppos] |= int32(pixel_map[y%4][x%4])
+	c.chars[ppos] |= int32(pixel_map[y%4][x%2])
 }
 
 func hasx(m CharMap, xkey int) bool {
