@@ -170,7 +170,7 @@ func (c *Canvas) Get(x, y int) bool {
 	dot_index := pixel_map[y%4][x%2]
 	xn := round(float64(x) / 2.0)
 	yn := round(float64(y) / 4.0)
-	ppos := Pos{yn, xn}
+	ppos := Pos{xn, yn}
 	char, ok := c.chars[ppos]
 	if !ok {
 		return false
@@ -269,6 +269,7 @@ func (c *Canvas) FrameCoord(min_x, min_y, max_x, max_y int) string {
 		for _, rowChar := range row {
 			s += string(rowChar)
 		}
+		//s += c.line_ending
 	}
 	return s
 }
