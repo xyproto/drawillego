@@ -82,6 +82,8 @@ func (p *Point3D) Project(win_width, win_height, fov, viewer_distance float64) *
 func run(projection bool) {
 	var t []Point3D
 	var p *Point3D
+	
+	tg.Clear(tg.ColorRed|tg.AttrBold, tg.ColorBlack|tg.AttrBold)
 
 	angleX, angleY, angleZ := 0.0, 0.0, 0.0
 	c := NewCanvas()
@@ -143,7 +145,7 @@ func run(projection bool) {
 
 		c.Clear()
 
-		tg.Clear(tg.ColorRed|tg.AttrBold, tg.ColorBlack|tg.AttrBold)
+		//tg.Clear(tg.ColorRed|tg.AttrBold, tg.ColorBlack|tg.AttrBold)
 
 		// TODO: Fork termbox and implement PeekEvent
 		//e := PeekEvent()
