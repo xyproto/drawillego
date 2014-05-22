@@ -1,6 +1,6 @@
 package drawille
 
-import "log"
+import "strings"
 
 type (
 	Pos            [2]int
@@ -52,7 +52,7 @@ func hasy(m CharMap, ykey int) bool {
 }
 
 func minx(m CharMap) int {
-	mx := -1
+	var mx int
 	if len(m) > 0 {
 		// Fetch the first x value
 		for k, _ := range m {
@@ -72,7 +72,7 @@ func minx(m CharMap) int {
 }
 
 func miny(m CharMap) int {
-	my := -1
+	var my int
 	if len(m) > 0 {
 		// Fetch the first y value
 		for k, _ := range m {
@@ -92,7 +92,7 @@ func miny(m CharMap) int {
 }
 
 func maxx(m CharMap) int {
-	mx := -1
+	var mx int
 	if len(m) > 0 {
 		// Fetch the first x value
 		for k, _ := range m {
@@ -111,8 +111,33 @@ func maxx(m CharMap) int {
 	return mx
 }
 
+func maxx_for_y(m CharMap, y int) int {
+	var mx int
+	if len(m) > 0 {
+		// Fetch the first x value for this row
+		for k, _ := range m {
+			if k[1] == y {
+				mx = k[0]
+				break
+			}
+		}
+	} else {
+		return mx
+	}
+	// Find the largest x value for this row
+	for k, _ := range m {
+		if k[1] == y {
+			if k[0] > mx {
+				mx = k[0]
+			}
+		}
+	}
+	return mx
+}
+
+
 func maxy(m CharMap) int {
-	my := -1
+	var my int
 	if len(m) > 0 {
 		// Fetch the first y value
 		for k, _ := range m {
@@ -186,7 +211,7 @@ func (c *Canvas) Get(x, y int) bool {
 
 // characters
 // min_* can be -1 for "everything"
-func (c *Canvas) Rows(min_x, min_y, max_x, max_y int) (ret []Row) {
+func (c *Canvas) Rows(min_x, min_y, max_x, max_y int) (ret []string) {
 	if len(c.chars) == 0 {
 		return
 	}
@@ -227,18 +252,16 @@ func (c *Canvas) Rows(min_x, min_y, max_x, max_y int) (ret []Row) {
 		//log.Printf("y %d, from %d to %d\n", y, minrow, (maxrow + 1))
 
 		if !hasy(c.chars, y) {
-			log.Println("APPEND AT ROW", y)
-			ret = append(ret, Row{})
+			ret = append(ret, "")
 			continue
 		}
 		if max_x != -1 {
 			maxcol = (max_x - 1) / 2
-			//log.Println("given maxcol", maxcol)
 		} else {
-			maxcol = maxx(c.chars)
-			//log.Println("found maxcol", maxcol)
+			maxcol = maxx_for_y(c.chars, y)
 		}
-		row := Row{}
+
+		row := ""
 
 		for x := mincol; x < (maxcol + 1); x++ {
 
@@ -248,11 +271,11 @@ func (c *Canvas) Rows(min_x, min_y, max_x, max_y int) (ret []Row) {
 			char, ok := c.chars[ppos]
 
 			if !ok {
-				row = append(row, ' ')
+				row += " "
 			} else if regular, ok := c.regular[ppos]; ok && regular {
-				row = append(row, char)
+				row += string(char)
 			} else {
-				row = append(row, int32(braille_char_offset)+int32(char))
+				row += string(int32(braille_char_offset)+int32(char))
 			}
 		}
 
@@ -268,14 +291,7 @@ func (c *Canvas) Frame() string {
 }
 
 func (c *Canvas) FrameCoord(min_x, min_y, max_x, max_y int) string {
-	s := ""
-	for _, row := range c.Rows(min_x, min_y, max_x, max_y) {
-		for _, rowChar := range row {
-			s += string(rowChar)
-		}
-		if len(row) == 0 {
-			s += "\n"
-		}
-	}
-	return s
+	rows := c.Rows(min_x, min_y, max_x, max_y)
+	ret := strings.Join(rows, c.line_ending)
+	return ret
 }

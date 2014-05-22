@@ -114,8 +114,9 @@ func TestSetText(t *testing.T) {
 	}
 	c.SetText(10, 10, "qwerty")
 	retval = c.Frame()
-	if retval != "asdf\n\n     qwerty" {
-		t.Errorf("Frame should be \"asdf\n\n     qwerty\", is %s!\n", retval)
+	shouldbe := "asdf\n\n     qwerty"
+	if retval != shouldbe {
+		t.Errorf("Frame should be:\n\t%v, is:\n\t%v\n", []byte(shouldbe), []byte(retval))
 	}
 }
 
