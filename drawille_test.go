@@ -1,8 +1,8 @@
 package drawille
 
 import (
-	"testing"
 	"log"
+	"testing"
 )
 
 var (

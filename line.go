@@ -29,8 +29,12 @@ func lessEqual(a, b *FloatOrInt) bool {
 	return a.Float() <= b.Float()
 }
 
-func line(x1, y1, x2, y2 int) chan FloatPair {
+func Line(x1, y1, x2, y2 int) chan FloatPair {
 	return _line(NewInt(x1), NewInt(y1), NewInt(x2), NewInt(y2))
+}
+
+func Linef(x1, y1, x2, y2 float64) chan FloatPair {
+	return _line(NewFloat(x1), NewFloat(y1), NewFloat(x2), NewFloat(y2))
 }
 
 // Returns the float coordinates in the channel. Equivivalent to yield.

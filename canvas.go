@@ -1,6 +1,9 @@
 package drawille
 
-import "strings"
+import (
+	"strings"
+	//"log"
+)
 
 type (
 	Pos            [2]int
@@ -30,7 +33,7 @@ func (c *Canvas) Set(x, y int) {
 		return
 	}
 	// Set the correct dot pattern
-	c.chars[ppos] |= int32(pixel_map[y%4][x%2])
+	c.chars[ppos] |= pixel_map[mod(y, 4)][mod(x, 2)]
 }
 
 func hasx(m CharMap, xkey int) bool {
@@ -135,7 +138,6 @@ func maxx_for_y(m CharMap, y int) int {
 	return mx
 }
 
-
 func maxy(m CharMap) int {
 	var my int
 	if len(m) > 0 {
@@ -158,7 +160,7 @@ func maxy(m CharMap) int {
 
 func (c *Canvas) Unset(x, y int) {
 	ppos := Pos{x / 2, y / 4}
-	c.chars[ppos] &= ^pixel_map[y%4][x%2]
+	c.chars[ppos] &= ^pixel_map[mod(y, 4)][mod(x, 2)]
 	if c.chars[ppos] == 0 {
 		delete(c.chars, ppos)
 	}
@@ -169,7 +171,7 @@ func (c *Canvas) Unset(x, y int) {
 
 func (c *Canvas) Toggle(x, y int) {
 	ppos := Pos{x / 2, y / 4}
-	if (c.chars[ppos] & pixel_map[y%4][x%2]) != 0 {
+	if (c.chars[ppos] & pixel_map[mod(y, 4)][mod(x, 2)]) != 0 {
 		c.Unset(x, y)
 	} else {
 		c.Set(x, y)
@@ -194,7 +196,7 @@ func (c *Canvas) SetText(x, y int, text string) {
 }
 
 func (c *Canvas) Get(x, y int) bool {
-	dot_index := pixel_map[y%4][x%2]
+	dot_index := pixel_map[mod(y, 4)][mod(x, 2)]
 	xn := round(float64(x) / 2.0)
 	yn := round(float64(y) / 4.0)
 	ppos := Pos{xn, yn}
@@ -275,7 +277,7 @@ func (c *Canvas) Rows(min_x, min_y, max_x, max_y int) (ret []string) {
 			} else if regular, ok := c.regular[ppos]; ok && regular {
 				row += string(char)
 			} else {
-				row += string(int32(braille_char_offset)+int32(char))
+				row += string(int32(braille_char_offset) + int32(char))
 			}
 		}
 
