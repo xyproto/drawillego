@@ -2,11 +2,40 @@ package drawille
 
 import (
 	"testing"
+	"log"
 )
 
 var (
 	c *Canvas
 )
+
+func TestRows(t *testing.T) {
+	c = NewCanvas()
+	c.Set(0, 0)
+	log.Println(c.Rows(-1, -1, -1, -1))
+	c.Clear()
+	log.Println(c.Rows(-1, -1, -1, -1))
+	c.SetText(0, 0, "asdf")
+	log.Println(c.Rows(-1, -1, -1, -1))
+	c.SetText(0, 8, "x")
+	log.Println(c.Rows(-1, -1, -1, -1))
+	// should now be asdf\n\nx
+}
+
+func TestSetText2(t *testing.T) {
+	log.Println("#################### here ############################")
+	c = NewCanvas()
+	c.SetText(0, 0, "x")
+	c.SetText(0, 8, "y")
+	c.SetText(16, 16, "z")
+	//rows := c.Rows(-1, -1, -1, -1)
+	//log.Println("rows", rows)
+	retval := c.Frame()
+	if retval != "x\n\ny\n\n        z" {
+		t.Errorf("Should be:\n\t%v, is\n\t%v\n", []byte("x\n\ny\n\n        z"), []byte(retval))
+	}
+	log.Println("######################################################")
+}
 
 func TestSetFrame(t *testing.T) {
 	c = NewCanvas()
@@ -86,7 +115,7 @@ func TestSetText(t *testing.T) {
 	c.SetText(10, 10, "qwerty")
 	retval = c.Frame()
 	if retval != "asdf\n\n     qwerty" {
-		t.Errorf("Frame should be \"asdf\\n\\n     qwerty\", is %s!\n", retval)
+		t.Errorf("Frame should be \"asdf\n\n     qwerty\", is %s!\n", retval)
 	}
 }
 

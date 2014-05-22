@@ -1,5 +1,7 @@
 package drawille
 
+import "log"
+
 type (
 	Pos            [2]int
 	CharMap        map[Pos]rune
@@ -158,7 +160,7 @@ func (c *Canvas) SetText(x, y int, text string) {
 	yn := round(float64(y) / 4.0)
 	var ppos Pos
 	for i, ru := range text {
-		ppos = Pos{yn, xn + i}
+		ppos = Pos{xn + i, yn}
 		// set the rune
 		c.chars[ppos] = ru
 		// mark as regular text
@@ -225,6 +227,7 @@ func (c *Canvas) Rows(min_x, min_y, max_x, max_y int) (ret []Row) {
 		//log.Printf("y %d, from %d to %d\n", y, minrow, (maxrow + 1))
 
 		if !hasy(c.chars, y) {
+			log.Println("APPEND AT ROW", y)
 			ret = append(ret, Row{})
 			continue
 		}
@@ -235,17 +238,17 @@ func (c *Canvas) Rows(min_x, min_y, max_x, max_y int) (ret []Row) {
 			maxcol = maxx(c.chars)
 			//log.Println("found maxcol", maxcol)
 		}
-		row := []rune{}
+		row := Row{}
 
 		for x := mincol; x < (maxcol + 1); x++ {
 
 			//log.Printf("x %d, from %d to %d\n", x, mincol, (maxcol + 1))
 
 			ppos = Pos{x, y}
-			char, found := c.chars[ppos]
+			char, ok := c.chars[ppos]
 
-			if !found {
-				row = append(row, 32)
+			if !ok {
+				row = append(row, ' ')
 			} else if regular, ok := c.regular[ppos]; ok && regular {
 				row = append(row, char)
 			} else {
@@ -253,6 +256,7 @@ func (c *Canvas) Rows(min_x, min_y, max_x, max_y int) (ret []Row) {
 			}
 		}
 
+		// Add the row
 		ret = append(ret, row)
 	}
 
@@ -269,7 +273,9 @@ func (c *Canvas) FrameCoord(min_x, min_y, max_x, max_y int) string {
 		for _, rowChar := range row {
 			s += string(rowChar)
 		}
-		//s += c.line_ending
+		if len(row) == 0 {
+			s += "\n"
+		}
 	}
 	return s
 }
