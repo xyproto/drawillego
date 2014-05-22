@@ -8,6 +8,15 @@ var (
 	c *Canvas
 )
 
+func TestSetFrame(t *testing.T) {
+	c = NewCanvas()
+	c.Set(0, 0)
+	retval := c.Frame()
+	if retval != string([]byte{226, 160, 129}) {
+		t.Errorf("Unexpected unicode sequence: %v\n", []byte(retval))
+	}
+}
+
 func TestSet(t *testing.T) {
 	c = NewCanvas()
 	c.Set(0, 0)
@@ -72,7 +81,12 @@ func TestSetText(t *testing.T) {
 	c.SetText(0, 0, "asdf")
 	retval := c.Frame()
 	if retval != "asdf" {
-		t.Errorf("Frame should be asdf, is %s!\n", retval)
+		t.Errorf("Frame should be \"asdf\", is %s!\n", retval)
+	}
+	c.SetText(10, 10, "qwerty")
+	retval = c.Frame()
+	if retval != "asdf\n\n     qwerty" {
+		t.Errorf("Frame should be \"asdf\\n\\n     qwerty\", is %s!\n", retval)
 	}
 }
 
