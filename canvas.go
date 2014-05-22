@@ -33,7 +33,7 @@ func (c *Canvas) Set(x, y int) {
 		return
 	}
 	// Set the correct dot pattern
-	c.chars[ppos] |= pixel_map[mod(y, 4)][mod(x, 2)]
+	c.chars[ppos] |= pixel_map[Mod(y, 4)][Mod(x, 2)]
 }
 
 func hasx(m CharMap, xkey int) bool {
@@ -160,7 +160,7 @@ func maxy(m CharMap) int {
 
 func (c *Canvas) Unset(x, y int) {
 	ppos := Pos{x / 2, y / 4}
-	c.chars[ppos] &= ^pixel_map[mod(y, 4)][mod(x, 2)]
+	c.chars[ppos] &= ^pixel_map[Mod(y, 4)][Mod(x, 2)]
 	if c.chars[ppos] == 0 {
 		delete(c.chars, ppos)
 	}
@@ -171,20 +171,16 @@ func (c *Canvas) Unset(x, y int) {
 
 func (c *Canvas) Toggle(x, y int) {
 	ppos := Pos{x / 2, y / 4}
-	if (c.chars[ppos] & pixel_map[mod(y, 4)][mod(x, 2)]) != 0 {
+	if (c.chars[ppos] & pixel_map[Mod(y, 4)][Mod(x, 2)]) != 0 {
 		c.Unset(x, y)
 	} else {
 		c.Set(x, y)
 	}
 }
 
-func round(a float64) int {
-	return int(a + 0.5)
-}
-
 func (c *Canvas) SetText(x, y int, text string) {
-	xn := round(float64(x) / 2.0)
-	yn := round(float64(y) / 4.0)
+	xn := Round(float64(x) / 2.0)
+	yn := Round(float64(y) / 4.0)
 	var ppos Pos
 	for i, ru := range text {
 		ppos = Pos{xn + i, yn}
@@ -196,9 +192,9 @@ func (c *Canvas) SetText(x, y int, text string) {
 }
 
 func (c *Canvas) Get(x, y int) bool {
-	dot_index := pixel_map[mod(y, 4)][mod(x, 2)]
-	xn := round(float64(x) / 2.0)
-	yn := round(float64(y) / 4.0)
+	dot_index := pixel_map[Mod(y, 4)][Mod(x, 2)]
+	xn := Round(float64(x) / 2.0)
+	yn := Round(float64(y) / 4.0)
 	ppos := Pos{xn, yn}
 	char, ok := c.chars[ppos]
 	if !ok {

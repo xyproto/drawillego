@@ -1,9 +1,8 @@
 package main
 
 import (
-	. "github.com/nsf/termbox-go"
+	tg "github.com/nsf/termbox-go"
 	. "github.com/xyproto/drawillego"
-	"github.com/xyproto/textgui"
 	"math"
 	"os"
 	"strings"
@@ -108,16 +107,16 @@ func run(projection bool) {
 
 		for _, f := range faces {
 			for fp := range Linef(t[f[0]].x, t[f[0]].y, t[f[1]].x, t[f[1]].y) {
-				c.Set(int(fp[0]), int(fp[1]))
+				c.Set(Round(fp[0]), Round(fp[1]))
 			}
 			for fp := range Linef(t[f[1]].x, t[f[1]].y, t[f[2]].x, t[f[2]].y) {
-				c.Set(int(fp[0]), int(fp[1]))
+				c.Set(Round(fp[0]), Round(fp[1]))
 			}
 			for fp := range Linef(t[f[2]].x, t[f[2]].y, t[f[3]].x, t[f[3]].y) {
-				c.Set(int(fp[0]), int(fp[1]))
+				c.Set(Round(fp[0]), Round(fp[1]))
 			}
 			for fp := range Linef(t[f[3]].x, t[f[3]].y, t[f[0]].x, t[f[0]].y) {
-				c.Set(int(fp[0]), int(fp[1]))
+				c.Set(Round(fp[0]), Round(fp[1]))
 			}
 		}
 
@@ -126,11 +125,15 @@ func run(projection bool) {
 		//stdscr.AddStr(0, 0, '{0}\n'.format(f))
 		xoffset := 2
 		for y, line := range strings.Split(f, "\n") {
-			textgui.Write(xoffset, y, line, ColorRed|AttrBold, ColorBlack|AttrBold)
+			pos := 0
+			for _, r := range line { // iterates over runes, not positions
+				tg.SetCell(xoffset+pos, y, r, tg.ColorRed|tg.AttrBold, tg.ColorBlack|tg.AttrBold)
+				pos++
+			}
 		}
 
 		//stdscr.Refresh()
-		textgui.Flush()
+		tg.Flush()
 
 		angleX += 2.0
 		angleY += 3.0
@@ -140,7 +143,7 @@ func run(projection bool) {
 
 		c.Clear()
 
-		textgui.Clear()
+		tg.Clear(tg.ColorRed|tg.AttrBold, tg.ColorBlack|tg.AttrBold)
 
 		// TODO: Fork termbox and implement PeekEvent
 		//e := PeekEvent()
@@ -161,7 +164,7 @@ func main() {
 			projection = true
 		}
 	}
-	textgui.Init()
+	tg.Init()
 	run(projection)
-	textgui.Close()
+	tg.Close()
 }

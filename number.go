@@ -24,7 +24,7 @@ func (fi *FloatOrInt) Normalize() {
 	if fi.floatType {
 		fi.floatType = false
 		// Round float64 to int
-		fi.ival = int(fi.fval + 0.5)
+		fi.ival = Round(fi.fval)
 	}
 }
 
@@ -37,7 +37,7 @@ func (fi *FloatOrInt) Normalized() *FloatOrInt {
 func (fi *FloatOrInt) Int() int {
 	if fi.floatType {
 		// Round float64 to int
-		return int(fi.fval + 0.5)
+		return Round(fi.fval)
 	}
 	return fi.ival
 }
